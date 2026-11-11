@@ -1,0 +1,21 @@
+{
+  "aviso": "Datos completamente simulados con fines académicos; no proceden de Copernicus ni de observaciones reales.",
+  "nota_indice": "El índice de acumulación es ilustrativo (0-100). No existe detección real de plástico.",
+  "pasadas": [
+    { "id": "S2-GAL-001", "fecha": "2025-01-12", "plataforma": "Sentinel-2A", "isla": "Santa Cruz", "latitud": -0.64, "longitud": -90.34, "nubosidad_pct": 12, "aptitud_pct": 88, "indice_acumulacion": 34 },
+    { "id": "S2-GAL-002", "fecha": "2025-01-24", "plataforma": "Sentinel-2B", "isla": "Isabela", "latitud": -0.82, "longitud": -91.04, "nubosidad_pct": 28, "aptitud_pct": 72, "indice_acumulacion": 61 },
+    { "id": "S2-GAL-003", "fecha": "2025-02-05", "plataforma": "Sentinel-2A", "isla": "San Cristóbal", "latitud": -0.88, "longitud": -89.54, "nubosidad_pct": 8, "aptitud_pct": 92, "indice_acumulacion": 47 },
+    { "id": "S2-GAL-004", "fecha": "2025-02-17", "plataforma": "Sentinel-2B", "isla": "Floreana", "latitud": -1.29, "longitud": -90.44, "nubosidad_pct": 41, "aptitud_pct": 59, "indice_acumulacion": 22 },
+    { "id": "S2-GAL-005", "fecha": "2025-03-01", "plataforma": "Sentinel-2A", "isla": "Isabela", "latitud": -0.33, "longitud": -91.12, "nubosidad_pct": 19, "aptitud_pct": 81, "indice_acumulacion": 76 },
+    { "id": "S2-GAL-006", "fecha": "2025-03-13", "plataforma": "Sentinel-2B", "isla": "Santa Cruz", "latitud": -0.72, "longitud": -90.27, "nubosidad_pct": 6, "aptitud_pct": 94, "indice_acumulacion": 39 },
+    { "id": "S2-GAL-007", "fecha": "2025-03-25", "plataforma": "Sentinel-2A", "isla": "Española", "latitud": -1.37, "longitud": -89.68, "nubosidad_pct": 53, "aptitud_pct": 47, "indice_acumulacion": 58 },
+    { "id": "S2-GAL-008", "fecha": "2025-04-06", "plataforma": "Sentinel-2B", "isla": "San Cristóbal", "latitud": -0.76, "longitud": -89.42, "nubosidad_pct": 14, "aptitud_pct": 86, "indice_acumulacion": 31 },
+    { "id": "S2-GAL-009", "fecha": "2025-04-18", "plataforma": "Sentinel-2A", "isla": "Santa Cruz", "latitud": -0.57, "longitud": -90.16, "nubosidad_pct": 35, "aptitud_pct": 65, "indice_acumulacion": 69 },
+    { "id": "S2-GAL-010", "fecha": "2025-04-30", "plataforma": "Sentinel-2B", "isla": "Isabela", "latitud": -0.59, "longitud": -90.91, "nubosidad_pct": 22, "aptitud_pct": 78, "indice_acumulacion": 83 },
+    { "id": "S2-GAL-011", "fecha": "2025-05-12", "plataforma": "Sentinel-2A", "isla": "Floreana", "latitud": -1.22, "longitud": -90.51, "nubosidad_pct": 67, "aptitud_pct": 33, "indice_acumulacion": 27 },
+    { "id": "S2-GAL-012", "fecha": "2025-05-24", "plataforma": "Sentinel-2B", "isla": "Santa Cruz", "latitud": -0.69, "longitud": -90.42, "nubosidad_pct": 11, "aptitud_pct": 89, "indice_acumulacion": 52 },
+    { "id": "S2-GAL-013", "fecha": "2025-06-05", "plataforma": "Sentinel-2A", "isla": "San Cristóbal", "latitud": -0.95, "longitud": -89.62, "nubosidad_pct": 46, "aptitud_pct": 54, "indice_acumulacion": 44 },
+    { "id": "S2-GAL-014", "fecha": "2025-06-17", "plataforma": "Sentinel-2B", "isla": "Española", "latitud": -1.31, "longitud": -89.77, "nubosidad_pct": 17, "aptitud_pct": 83, "indice_acumulacion": 91 },
+    { "id": "S2-GAL-015", "fecha": "2025-06-29", "plataforma": "Sentinel-2A", "isla": "Isabela", "latitud": -0.91, "longitud": -91.18, "nubosidad_pct": 31, "aptitud_pct": 69, "indice_acumulacion": 63 }
+  ]
+}

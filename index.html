@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Prototipo académico de exploración de pasadas Sentinel-2 simuladas en Galápagos.">
+  <title>PlasTrack | Galápagos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="PlasTrack, inicio">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span>plas<span class="brand-light">track</span></span>
+      </a>
+      <div class="topbar-meta"><span class="live-dot"></span> PROTOTIPO ACADÉMICO <span class="topbar-divider">/</span> GALÁPAGOS, ECUADOR</div>
+      <a class="source-link" href="data_copernicus_sample.json" target="_blank" rel="noreferrer">Datos de muestra <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <main>
+      <section class="intro" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">OBSERVACIÓN SATELITAL <span>·</span> 2025</p>
+          <h1 id="page-title">Una mirada al <em>archipiélago.</em></h1>
+          <p class="intro-copy">Explora pasadas Sentinel-2 simuladas y sus indicadores de observación.</p>
+        </div>
+        <div class="notice"><span class="notice-icon" aria-hidden="true">i</span><span>Datos simulados. El índice es ilustrativo y <strong>no detecta plástico real.</strong></span></div>
+      </section>
+
+      <section class="filter-bar" aria-label="Filtros de pasadas">
+        <label class="filter-field island-filter" for="island-filter"><span>ISLA</span>
+          <select id="island-filter"><option value="">Todas las islas</option></select>
+        </label>
+        <label class="filter-field" for="date-from"><span>DESDE</span><input id="date-from" type="date" min="2025-01-01" max="2025-12-31"></label>
+        <label class="filter-field" for="date-to"><span>HASTA</span><input id="date-to" type="date" min="2025-01-01" max="2025-12-31"></label>
+        <label class="filter-field cloud-filter" for="cloud-max"><span>NUBOSIDAD MÁX. <b id="cloud-value">100%</b></span><input id="cloud-max" type="range" min="0" max="100" value="100"></label>
+        <button class="reset-button" id="reset-filters" type="button"><span aria-hidden="true">↺</span> Restablecer</button>
+      </section>
+
+      <section class="kpi-grid" aria-label="Indicadores del conjunto filtrado">
+        <article class="kpi kpi-primary"><div class="kpi-label">PASADAS <span class="kpi-glyph" aria-hidden="true">◉</span></div><div class="kpi-value" id="kpi-passes">—</div><div class="kpi-foot">escenas seleccionadas</div></article>
+        <article class="kpi"><div class="kpi-label">NUBOSIDAD MEDIA <span class="kpi-glyph cloud-glyph" aria-hidden="true">☁</span></div><div class="kpi-value" id="kpi-cloud">—<small>%</small></div><div class="kpi-foot">porcentaje de cobertura</div></article>
+        <article class="kpi"><div class="kpi-label">APTITUD MEDIA <span class="kpi-glyph" aria-hidden="true">⌁</span></div><div class="kpi-value" id="kpi-suitability">—<small>%</small></div><div class="kpi-foot">calidad simulada de observación</div></article>
+        <article class="kpi"><div class="kpi-label">ÍNDICE ILUSTRATIVO <span class="kpi-glyph" aria-hidden="true">✳</span></div><div class="kpi-value" id="kpi-index">—<small>/100</small></div><div class="kpi-foot">sin detección real de plástico</div></article>
+      </section>
+
+      <section class="visual-grid" aria-label="Visualizaciones">
+        <article class="panel map-panel">
+          <div class="panel-heading"><div><p class="panel-kicker">DISTRIBUCIÓN ESPACIAL</p><h2>Pasadas sobre las islas</h2></div><label class="toggle-control" for="heat-toggle"><span>Capa de calor</span><input id="heat-toggle" type="checkbox"><span class="toggle-track" aria-hidden="true"></span></label></div>
+          <div id="map" class="map" role="application" aria-label="Mapa de pasadas simuladas en Galápagos"></div>
+          <div class="map-legend"><span><i class="legend-dot"></i> Pasada</span><span><i class="legend-heat"></i> Índice ilustrativo</span><span class="map-attribution">© OpenStreetMap</span></div>
+        </article>
+        <article class="panel chart-panel">
+          <div class="panel-heading"><div><p class="panel-kicker">CALIDAD DE OBSERVACIÓN</p><h2>Nubosidad y aptitud</h2></div><span class="chart-unit">%</span></div>
+          <div class="chart-wrap"><canvas id="trend-chart" role="img" aria-label="Gráfico de nubosidad y aptitud por fecha"></canvas></div>
+          <div class="chart-legend"><span><i class="chart-key cloud-key"></i> Nubosidad</span><span><i class="chart-key suitability-key"></i> Aptitud</span></div>
+        </article>
+      </section>
+
+      <section class="panel table-panel" aria-labelledby="table-title">
+        <div class="panel-heading table-heading"><div><p class="panel-kicker">REGISTRO DE ESCENAS</p><h2 id="table-title">Pasadas recientes</h2></div><span class="result-count" id="result-count">15 registros</span></div>
+        <div class="table-scroll"><table><thead><tr><th>FECHA</th><th>ID DE PASADA</th><th>PLATAFORMA</th><th>ISLA</th><th>NUBOSIDAD</th><th>APTITUD</th><th>ÍNDICE*</th></tr></thead><tbody id="pass-table-body"></tbody></table>
+          <div class="empty-state" id="empty-state" hidden><span aria-hidden="true">⌕</span><strong>Sin pasadas para estos filtros</strong><p>Ajusta los criterios o restablécelos para ver los registros.</p></div>
+        </div>
+        <p class="table-footnote">* Índice ficticio e ilustrativo; no equivale a una detección de plástico.</p>
+      </section>
+    </main>
+    <footer><span>PLASTRACK <b>·</b> PROTOTIPO ACADÉMICO</span><span>DATOS SIMULADOS <b>·</b> SIN DETECCIÓN REAL</span></footer>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
