@@ -99,9 +99,10 @@ function renderMap(passes) {
 }
 
 function renderChart(passes) {
-  chart.data.labels = passes.map(pass => formatDate(pass.fecha));
-  chart.data.datasets[0].data = passes.map(pass => pass.nubosidad_pct);
-  chart.data.datasets[1].data = passes.map(pass => pass.aptitud_pct);
+  const chronologicalPasses = [...passes].sort((a, b) => a.fecha.localeCompare(b.fecha));
+  chart.data.labels = chronologicalPasses.map(pass => formatDate(pass.fecha));
+  chart.data.datasets[0].data = chronologicalPasses.map(pass => pass.nubosidad_pct);
+  chart.data.datasets[1].data = chronologicalPasses.map(pass => pass.aptitud_pct);
   chart.update();
 }
 
