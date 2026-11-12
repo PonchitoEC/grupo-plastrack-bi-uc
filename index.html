@@ -58,8 +58,9 @@
         <article class="panel chart-panel">
           <div class="panel-heading"><div><p class="panel-kicker">CALIDAD DE OBSERVACIÓN</p><h2>Nubosidad y aptitud</h2></div><span class="chart-unit">%</span></div>
           <div class="chart-wrap">
-            <canvas id="trend-chart" role="img" aria-label="Gráfico de nubosidad y aptitud por fecha"></canvas>
+            <canvas id="trend-chart" role="img" aria-label="Gráfico de nubosidad y aptitud por fecha" aria-describedby="trend-chart-description"></canvas>
             <div class="chart-empty-state" id="trend-empty-state" role="status" hidden>No hay pasadas para mostrar con estos filtros.</div>
+            <p class="visually-hidden" id="trend-chart-description">Cada punto representa una pasada y el eje vertical muestra porcentajes. La tabla de registros incluye los valores de nubosidad y aptitud por fecha.</p>
           </div>
           <div class="chart-legend"><span><i class="chart-key cloud-key"></i> Nubosidad</span><span><i class="chart-key suitability-key"></i> Aptitud</span></div>
         </article>

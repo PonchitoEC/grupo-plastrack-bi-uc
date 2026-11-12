@@ -132,6 +132,14 @@ function renderChart(passes) {
   chart.data.labels = chronologicalPasses.map(pass => formatDate(pass.fecha));
   chart.data.datasets[0].data = chronologicalPasses.map(pass => pass.nubosidad_pct);
   chart.data.datasets[1].data = chronologicalPasses.map(pass => pass.aptitud_pct);
+  const dates = passes.map(pass => pass.fecha).sort();
+  chart.canvas.setAttribute(
+    "aria-label",
+    dates.length
+      ? `Gráfico de nubosidad y aptitud del sensor para ${dates.length} pasadas, del ${formatDate(dates[0])} al ${formatDate(dates[dates.length - 1])}.`
+      : "Gráfico sin pasadas coincidentes con los filtros seleccionados."
+  );
+  trendEmptyState.hidden = passes.length > 0;
   chart.update();
 }
 
