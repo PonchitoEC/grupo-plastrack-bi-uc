@@ -67,6 +67,17 @@ function renderMap(passes) {
       radius: 6, color: "#ffffff", weight: 2, fillColor: "#e18268", fillOpacity: 0.95
     });
     marker.bindPopup(`<span class="popup-title">${pass.isla}</span><br>${formatDate(pass.fecha)}<br>${pass.plataforma} · Aptitud ${pass.aptitud_pct}%`);
+    marker.bindTooltip(`${pass.isla} · Índice de acumulación: ${pass.indice_acumulacion}`, {
+      direction: "top"
+    });
+    marker.on("mouseover", () => {
+      marker.setStyle({ fillColor: "#105e50" });
+      marker.openTooltip();
+    });
+    marker.on("mouseout", () => {
+      marker.setStyle({ fillColor: "#e18268" });
+      marker.closeTooltip();
+    });
     marker.addTo(markerLayer);
   }
   if (heatLayer) {
