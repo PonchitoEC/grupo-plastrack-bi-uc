@@ -33,28 +33,8 @@ function initializeChart() {
     data: {
       labels: [],
       datasets: [
-        {
-          label: "Nubosidad",
-          data: [],
-          borderColor: "#e18268",
-          backgroundColor: "#e18268",
-          pointStyle: "circle",
-          pointRadius: 3,
-          pointHoverRadius: 6,
-          borderWidth: 2,
-          tension: 0
-        },
-        {
-          label: "Aptitud",
-          data: [],
-          borderColor: "#167c65",
-          backgroundColor: "#167c65",
-          pointStyle: "rectRot",
-          pointRadius: 3,
-          pointHoverRadius: 6,
-          borderWidth: 2,
-          tension: 0
-        }
+        { label: "Nubosidad", data: [], borderColor: "#e18268", backgroundColor: "#e18268", tension: 0.32, pointRadius: 3, pointHoverRadius: 5, borderWidth: 2 },
+        { label: "Aptitud", data: [], borderColor: "#167c65", backgroundColor: "#167c65", tension: 0.32, pointRadius: 3, pointHoverRadius: 5, borderWidth: 2 }
       ]
     },
     options: {
@@ -63,15 +43,7 @@ function initializeChart() {
       interaction: { intersect: false, mode: "index" },
       plugins: {
         legend: { display: false },
-        tooltip: {
-          backgroundColor: "#172d31",
-          padding: 10,
-          titleFont: { family: "DM Mono" },
-          bodyFont: { family: "DM Sans" },
-          callbacks: {
-            label: contextItem => ` ${contextItem.dataset.label}: ${contextItem.parsed.y}%`
-          }
-        }
+        tooltip: { backgroundColor: "#172d31", padding: 10, titleFont: { family: "DM Mono" }, bodyFont: { family: "DM Sans" }, callbacks: { label: contextItem => ` ${contextItem.dataset.label}: ${contextItem.parsed.y}%` } }
       },
       scales: {
         x: { grid: { display: false }, border: { display: false }, ticks: { color: "#85918d", maxRotation: 0, autoSkip: true, maxTicksLimit: 7, font: { family: "DM Mono", size: 9 } } },
@@ -128,10 +100,9 @@ function renderMap(passes) {
 }
 
 function renderChart(passes) {
-  const chronologicalPasses = [...passes].sort((a, b) => a.fecha.localeCompare(b.fecha));
-  chart.data.labels = chronologicalPasses.map(pass => formatDate(pass.fecha));
-  chart.data.datasets[0].data = chronologicalPasses.map(pass => pass.nubosidad_pct);
-  chart.data.datasets[1].data = chronologicalPasses.map(pass => pass.aptitud_pct);
+  chart.data.labels = passes.map(pass => formatDate(pass.fecha));
+  chart.data.datasets[0].data = passes.map(pass => pass.nubosidad_pct);
+  chart.data.datasets[1].data = passes.map(pass => pass.aptitud_pct);
   const dates = passes.map(pass => pass.fecha).sort();
   chart.canvas.setAttribute(
     "aria-label",
