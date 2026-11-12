@@ -32,8 +32,28 @@ function initializeChart() {
     data: {
       labels: [],
       datasets: [
-        { label: "Nubosidad", data: [], borderColor: "#e18268", backgroundColor: "#e18268", tension: 0.32, pointRadius: 3, pointHoverRadius: 5, borderWidth: 2 },
-        { label: "Aptitud", data: [], borderColor: "#167c65", backgroundColor: "#167c65", tension: 0.32, pointRadius: 3, pointHoverRadius: 5, borderWidth: 2 }
+        {
+          label: "Nubosidad",
+          data: [],
+          borderColor: "#e18268",
+          backgroundColor: "#e18268",
+          pointStyle: "circle",
+          pointRadius: 3,
+          pointHoverRadius: 6,
+          borderWidth: 2,
+          tension: 0
+        },
+        {
+          label: "Aptitud",
+          data: [],
+          borderColor: "#167c65",
+          backgroundColor: "#167c65",
+          pointStyle: "rectRot",
+          pointRadius: 3,
+          pointHoverRadius: 6,
+          borderWidth: 2,
+          tension: 0
+        }
       ]
     },
     options: {
@@ -42,11 +62,41 @@ function initializeChart() {
       interaction: { intersect: false, mode: "index" },
       plugins: {
         legend: { display: false },
-        tooltip: { backgroundColor: "#172d31", padding: 10, titleFont: { family: "DM Mono" }, bodyFont: { family: "DM Sans" }, callbacks: { label: contextItem => ` ${contextItem.dataset.label}: ${contextItem.parsed.y}%` } }
+        tooltip: {
+          backgroundColor: "#172d31",
+          padding: 10,
+          titleFont: { family: "DM Mono" },
+          bodyFont: { family: "DM Sans" },
+          callbacks: {
+            label: contextItem => ` ${contextItem.dataset.label}: ${contextItem.parsed.y}%`
+          }
+        }
       },
       scales: {
-        x: { grid: { display: false }, border: { display: false }, ticks: { color: "#85918d", maxRotation: 0, autoSkip: true, maxTicksLimit: 7, font: { family: "DM Mono", size: 9 } } },
-        y: { min: 0, max: 100, grid: { color: "#edf1ee" }, border: { display: false }, ticks: { stepSize: 25, color: "#85918d", padding: 8, font: { family: "DM Mono", size: 9 }, callback: value => `${value}%` } }
+        x: {
+          grid: { display: false },
+          border: { display: false },
+          ticks: {
+            color: "#85918d",
+            maxRotation: 0,
+            autoSkip: true,
+            maxTicksLimit: 7,
+            font: { family: "DM Mono", size: 9 }
+          }
+        },
+        y: {
+          min: 0,
+          max: 100,
+          grid: { color: "#edf1ee" },
+          border: { display: false },
+          ticks: {
+            stepSize: 25,
+            color: "#85918d",
+            padding: 8,
+            font: { family: "DM Mono", size: 9 },
+            callback: value => `${value}%`
+          }
+        }
       }
     }
   });
