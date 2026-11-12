@@ -5,6 +5,13 @@ const emptyState = document.querySelector("#empty-state");
 const resultCount = document.querySelector("#result-count");
 
 const map = L.map("map", { scrollWheelZoom: false, zoomControl: true }).setView([-0.8, -90.7], 7);
+const mapContainer = map.getContainer();
+mapContainer.addEventListener("click", () => map.scrollWheelZoom.enable());
+document.addEventListener("click", event => {
+  if (!(event.target instanceof Node) || !mapContainer.contains(event.target)) {
+    map.scrollWheelZoom.disable();
+  }
+});
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 18,
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
