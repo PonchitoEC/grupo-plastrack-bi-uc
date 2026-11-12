@@ -44,23 +44,25 @@
           <label class="filter-field">PLATAFORMA<select id="filter-platform" aria-label="Filtrar por plataforma"><option value="">Todas las plataformas</option></select></label>
           <button class="filter-reset" id="reset-filters" type="button"><span aria-hidden="true">↺</span>Limpiar filtros</button>
         </div>
+        <p class="selection-summary" id="selection-summary" aria-live="polite">Cargando pasadas…</p>
       </section>
 
       <section class="kpi-grid" aria-label="Indicadores del conjunto filtrado">
-        <article class="kpi kpi-primary" id="kpi-card-passes"><div class="kpi-label">PASADAS <span class="kpi-glyph" aria-hidden="true">◉</span></div><div class="kpi-value" id="kpi-passes">—</div><div class="kpi-viz kpi-progress-track" role="progressbar" aria-label="Proporción de pasadas visibles respecto al conjunto completo" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="kpi-passes-progress"></span></div><div class="kpi-meta"><span class="kpi-status" id="kpi-passes-status" aria-live="polite">Sin datos</span><span class="kpi-foot" id="kpi-passes-foot">sin comparación</span></div></article>
-        <article class="kpi" id="kpi-card-cloud"><div class="kpi-label">NUBOSIDAD MEDIA <span class="kpi-glyph cloud-glyph" aria-hidden="true">☁</span></div><div class="kpi-value" id="kpi-cloud">—<small>%</small></div><svg class="kpi-viz kpi-sparkline" id="kpi-cloud-sparkline" viewBox="0 0 100 28" preserveAspectRatio="none" role="img" aria-label="Tendencia de nubosidad sin datos"><polyline id="kpi-cloud-sparkline-line" points=""></polyline><circle id="kpi-cloud-sparkline-point" cx="0" cy="0" r="2.5"></circle></svg><div class="kpi-meta"><span class="kpi-status" id="kpi-cloud-status" aria-live="polite">Sin datos</span><span class="kpi-foot" id="kpi-cloud-foot">sin comparación</span></div></article>
-        <article class="kpi" id="kpi-card-suitability"><div class="kpi-label">APTITUD MEDIA <span class="kpi-glyph" aria-hidden="true">⌁</span></div><div class="kpi-value" id="kpi-suitability">—<small>%</small></div><svg class="kpi-viz kpi-sparkline" id="kpi-suitability-sparkline" viewBox="0 0 100 28" preserveAspectRatio="none" role="img" aria-label="Tendencia de aptitud sin datos"><polyline id="kpi-suitability-sparkline-line" points=""></polyline><circle id="kpi-suitability-sparkline-point" cx="0" cy="0" r="2.5"></circle></svg><div class="kpi-meta"><span class="kpi-status" id="kpi-suitability-status" aria-live="polite">Sin datos</span><span class="kpi-foot" id="kpi-suitability-foot">sin comparación</span></div></article>
-        <article class="kpi" id="kpi-card-index"><div class="kpi-label">ÍNDICE ILUSTRATIVO <span class="kpi-glyph" aria-hidden="true">✳</span></div><div class="kpi-value" id="kpi-index">—<small>/100</small></div><svg class="kpi-viz kpi-sparkline" id="kpi-index-sparkline" viewBox="0 0 100 28" preserveAspectRatio="none" role="img" aria-label="Tendencia del índice ilustrativo sin datos"><polyline id="kpi-index-sparkline-line" points=""></polyline><circle id="kpi-index-sparkline-point" cx="0" cy="0" r="2.5"></circle></svg><div class="kpi-meta"><span class="kpi-status" id="kpi-index-status" aria-live="polite">Sin datos</span><span class="kpi-foot" id="kpi-index-foot">sin comparación</span></div></article>
+        <article class="kpi kpi-primary" id="kpi-card-passes"><div class="kpi-label">Pasadas seleccionadas <span class="kpi-glyph" aria-hidden="true">◉</span></div><div class="kpi-value" id="kpi-passes">—</div><div class="kpi-viz kpi-progress-track" role="progressbar" aria-label="Proporción de pasadas visibles respecto al conjunto completo" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="kpi-passes-progress"></span></div><div class="kpi-meta"><span class="kpi-foot" id="kpi-passes-foot">— % del total</span></div></article>
+        <article class="kpi" id="kpi-card-cloud"><div class="kpi-label">Nubosidad media <span class="kpi-glyph cloud-glyph" aria-hidden="true">☁</span></div><div class="kpi-value" id="kpi-cloud">—<small>%</small></div><svg class="kpi-viz kpi-sparkline" id="kpi-cloud-sparkline" viewBox="0 0 100 28" preserveAspectRatio="none" role="img" aria-label="Tendencia de nubosidad sin datos"><polyline id="kpi-cloud-sparkline-line" points=""></polyline><circle id="kpi-cloud-sparkline-point" cx="0" cy="0" r="2.5"></circle></svg><div class="kpi-meta"><span class="kpi-foot" id="kpi-cloud-foot">Cobertura media de nubes</span></div></article>
+        <article class="kpi" id="kpi-card-suitability"><div class="kpi-label">Aptitud media <span class="kpi-glyph" aria-hidden="true">⌁</span></div><div class="kpi-value" id="kpi-suitability">—<small>%</small></div><svg class="kpi-viz kpi-sparkline" id="kpi-suitability-sparkline" viewBox="0 0 100 28" preserveAspectRatio="none" role="img" aria-label="Tendencia de aptitud sin datos"><polyline id="kpi-suitability-sparkline-line" points=""></polyline><circle id="kpi-suitability-sparkline-point" cx="0" cy="0" r="2.5"></circle></svg><div class="kpi-meta"><span class="kpi-foot" id="kpi-suitability-foot">Aptitud simulada de observación</span></div></article>
+        <article class="kpi" id="kpi-card-index"><div class="kpi-label">Índice simulado medio <span class="kpi-glyph" aria-hidden="true">✳</span></div><div class="kpi-value" id="kpi-index">—<small>/100</small></div><svg class="kpi-viz kpi-sparkline" id="kpi-index-sparkline" viewBox="0 0 100 28" preserveAspectRatio="none" role="img" aria-label="Tendencia del índice simulado sin datos"><polyline id="kpi-index-sparkline-line" points=""></polyline><circle id="kpi-index-sparkline-point" cx="0" cy="0" r="2.5"></circle></svg><div class="kpi-meta"><span class="kpi-foot" id="kpi-index-foot">Escala ilustrativa de 0 a 100</span></div></article>
       </section>
 
       <section class="visual-grid" aria-label="Visualizaciones">
         <article class="panel map-panel">
-          <div class="panel-heading"><div><p class="panel-kicker">DISTRIBUCIÓN ESPACIAL</p><h2>Pasadas sobre las islas</h2></div><label class="toggle-control" for="heat-toggle"><span>Capa de calor</span><input id="heat-toggle" type="checkbox"><span class="toggle-track" aria-hidden="true"></span></label></div>
+          <div class="panel-heading"><div><p class="panel-kicker">DISTRIBUCIÓN ESPACIAL</p><h2>Mapa de pasadas · Leaflet</h2></div><label class="toggle-control" for="heat-toggle"><span>Mostrar capa de calor</span><input id="heat-toggle" type="checkbox"><span class="toggle-track" aria-hidden="true"></span></label></div>
           <div id="map" class="map" role="application" aria-label="Mapa de pasadas simuladas en Galápagos"></div>
-          <div class="map-legend"><span><i class="legend-dot"></i> Pasada</span><span><i class="legend-heat"></i> Índice ilustrativo</span><span class="map-attribution">© OpenStreetMap</span></div>
+          <div class="map-legend"><span class="marker-legend" id="marker-legend"><i class="legend-marker" aria-hidden="true"></i> Pasada Sentinel-2</span><span class="map-attribution">© OpenStreetMap</span></div>
+          <p class="map-note">La intensidad es ilustrativa. Los datos son simulados y no representan detección real de plástico.</p>
         </article>
         <article class="panel chart-panel">
-          <div class="panel-heading"><div><p class="panel-kicker">CALIDAD DE OBSERVACIÓN</p><h2>Nubosidad y aptitud</h2><p class="chart-selection" id="chart-selection" aria-live="polite">Resumen de todas las pasadas</p></div><div class="chart-heading-meta"><button class="chart-reset" id="chart-reset" type="button" hidden>Ver todas</button><span class="chart-unit">%</span></div></div>
+          <div class="panel-heading"><div><p class="panel-kicker">CALIDAD DE OBSERVACIÓN</p><h2>Nubosidad y aptitud a lo largo del tiempo · Chart.js</h2><p class="chart-selection" id="chart-selection" aria-live="polite">Resumen de todas las pasadas</p></div><div class="chart-heading-meta"><button class="chart-reset" id="chart-reset" type="button" hidden>Ver todas</button></div></div>
           <div class="chart-controls">
             <label class="chart-control">SERIE
               <select id="chart-series" aria-label="Series que se muestran en el gráfico">
@@ -76,19 +78,20 @@
               </select>
             </label>
           </div>
+          <p class="chart-note" id="monthly-note" hidden>Cada punto resume las pasadas disponibles de ese mes.</p>
           <div class="chart-wrap">
             <canvas id="trend-chart" role="img" aria-label="Gráfico de nubosidad y aptitud por fecha" aria-describedby="trend-chart-description"></canvas>
-            <div class="chart-empty-state" id="trend-empty-state" role="status" hidden>No hay datos para mostrar con estos filtros.</div>
+            <div class="chart-empty-state" id="trend-empty-state" role="status" hidden>Sin datos para esta selección</div>
             <p class="visually-hidden" id="trend-chart-description">El eje horizontal muestra fechas o meses y el eje vertical muestra porcentajes. Usa los controles para elegir las series y la agrupación de los datos.</p>
           </div>
-          <div class="chart-legend"><span><i class="chart-key cloud-key"></i> Nubosidad</span><span><i class="chart-key suitability-key"></i> Aptitud</span></div>
+          <div class="chart-legend" id="chart-legend"><span id="cloud-legend-entry"><i class="chart-key cloud-key"></i> Nubosidad</span><span id="suitability-legend-entry"><i class="chart-key suitability-key"></i> Aptitud</span></div>
         </article>
       </section>
 
       <section class="panel table-panel" aria-labelledby="table-title">
-        <div class="panel-heading table-heading"><div><p class="panel-kicker">REGISTRO DE ESCENAS</p><h2 id="table-title">Pasadas recientes</h2></div><span class="result-count" id="result-count">15 registros</span></div>
+        <div class="panel-heading table-heading"><div><p class="panel-kicker">REGISTRO DE ESCENAS</p><h2 id="table-title">Pasadas recientes</h2><p class="data-caption">15 pasadas simuladas de Sentinel-2 sobre Galápagos · <a href="data_copernicus_sample.json" target="_blank" rel="noreferrer">Ver datos JSON ↗</a></p></div><span class="result-count" id="result-count">15 registros</span></div>
         <div class="table-scroll"><table><thead><tr><th>FECHA</th><th>ID DE PASADA</th><th>PLATAFORMA</th><th>ISLA</th><th>NUBOSIDAD</th><th>APTITUD</th><th>ÍNDICE*</th></tr></thead><tbody id="pass-table-body"></tbody></table>
-          <div class="empty-state" id="empty-state" hidden><span aria-hidden="true">⌕</span><strong>Sin pasadas para estos filtros</strong><p>Ajusta los criterios o restablécelos para ver los registros.</p></div>
+          <div class="empty-state" id="empty-state" hidden><span aria-hidden="true">⌕</span><strong>Sin datos para esta selección</strong><p>Ajusta los criterios o usa «Limpiar filtros» para ver los registros.</p></div>
         </div>
         <p class="table-footnote">* Índice ficticio e ilustrativo; no equivale a una detección de plástico.</p>
       </section>

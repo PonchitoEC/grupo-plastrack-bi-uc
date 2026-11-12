@@ -13,6 +13,12 @@ const chartSelection = document.querySelector("#chart-selection");
 const chartReset = document.querySelector("#chart-reset");
 const chartSeriesFilter = document.querySelector("#chart-series");
 const chartAggregationFilter = document.querySelector("#chart-aggregation");
+const selectionSummary = document.querySelector("#selection-summary");
+const monthlyNote = document.querySelector("#monthly-note");
+const chartLegend = document.querySelector("#chart-legend");
+const markerLegend = document.querySelector("#marker-legend");
+const cloudLegendEntry = document.querySelector("#cloud-legend-entry");
+const suitabilityLegendEntry = document.querySelector("#suitability-legend-entry");
 
 const map = L.map("map", { scrollWheelZoom: false, zoomControl: true }).setView([-0.8, -90.7], 7);
 const mapContainer = map.getContainer();
@@ -46,50 +52,33 @@ const average = (passes, key) => passes.length
   ? passes.reduce((sum, pass) => sum + pass[key], 0) / passes.length
   : null;
 
-function setKpiStatus(cardId, statusId, status, tone) {
-  const card = document.querySelector(cardId);
-  card.dataset.status = tone;
-  document.querySelector(statusId).textContent = status;
-}
-
 function renderKpis(passes) {
   document.querySelector("#kpi-passes").textContent = passes.length;
   const passesCoverage = allPasses.length ? passes.length / allPasses.length : 0;
   const passesProgress = document.querySelector("#kpi-passes-progress");
   passesProgress.style.width = `${passesCoverage * 100}%`;
   passesProgress.parentElement.setAttribute("aria-valuenow", Math.round(passesCoverage * 100));
-  const passesStatus = passes.length === 0
-    ? ["Sin datos", "empty"]
-    : passesCoverage >= 0.75
-      ? ["Cobertura alta", "good"]
-      : passesCoverage >= 0.4
-        ? ["Cobertura moderada", "watch"]
-        : ["Cobertura reducida", "high"];
-  setKpiStatus("#kpi-card-passes", "#kpi-passes-status", ...passesStatus);
-  renderVariation(document.querySelector("#kpi-passes-foot"), passes.length, allPasses.length);
+  document.querySelector("#kpi-passes-foot").textContent =
+    `${new Intl.NumberFormat("es-EC", { maximumFractionDigits: 1 }).format(passesCoverage * 100)} % del total`;
+  selectionSummary.textContent = `${passes.length} de ${allPasses.length} pasadas seleccionadas`;
 
   const metrics = [
-    { selector: "#kpi-cloud", statusSelector: "#kpi-cloud-status", footSelector: "#kpi-cloud-foot", cardSelector: "#kpi-card-cloud", key: "nubosidad_pct", suffix: "%", sparklineSelector: "#kpi-cloud-sparkline", label: "nubosidad", getStatus: value => value <= 20 ? ["Óptimo", "good"] : value <= 50 ? ["Moderado", "watch"] : ["Alto", "high"] },
-    { selector: "#kpi-suitability", statusSelector: "#kpi-suitability-status", footSelector: "#kpi-suitability-foot", cardSelector: "#kpi-card-suitability", key: "aptitud_pct", suffix: "%", sparklineSelector: "#kpi-suitability-sparkline", label: "aptitud", getStatus: value => value >= 80 ? ["Óptimo", "good"] : value >= 60 ? ["Moderado", "watch"] : ["Bajo", "high"] },
-    { selector: "#kpi-index", statusSelector: "#kpi-index-status", footSelector: "#kpi-index-foot", cardSelector: "#kpi-card-index", key: "indice_acumulacion", suffix: "/100", sparklineSelector: "#kpi-index-sparkline", label: "índice ilustrativo", getStatus: value => value <= 35 ? ["Bajo", "good"] : value <= 65 ? ["Moderado", "watch"] : ["Alto", "high"] }
+    { selector: "#kpi-cloud", key: "nubosidad_pct", suffix: "%", sparklineSelector: "#kpi-cloud-sparkline", label: "nubosidad" },
+    { selector: "#kpi-suitability", key: "aptitud_pct", suffix: "%", sparklineSelector: "#kpi-suitability-sparkline", label: "aptitud" },
+    { selector: "#kpi-index", key: "indice_acumulacion", suffix: "/100", sparklineSelector: "#kpi-index-sparkline", label: "índice simulado" }
   ];
 
   for (const metric of metrics) {
     const value = average(passes, metric.key);
     renderKpiSparkline(metric.sparklineSelector, passes, metric.key, metric.label);
     const element = document.querySelector(metric.selector);
-    element.innerHTML = `${value === null ? "—" : Math.round(value)}<small>${metric.suffix}</small>`;
     if (value === null) {
-      setKpiStatus(metric.cardSelector, metric.statusSelector, "Sin datos", "empty");
-      document.querySelector(metric.footSelector).textContent = "sin comparación";
+      element.textContent = "Sin datos para esta selección";
+      element.classList.add("kpi-empty-value");
       continue;
     }
-
-    const [status, tone] = metric.getStatus(value);
-    setKpiStatus(metric.cardSelector, metric.statusSelector, status, tone);
-
-    const baseline = average(allPasses, metric.key);
-    renderVariation(document.querySelector(metric.footSelector), value, baseline);
+    element.classList.remove("kpi-empty-value");
+    element.innerHTML = `${Math.round(value)}<small>${metric.suffix}</small>`;
   }
 }
 
@@ -119,24 +108,6 @@ function renderKpiSparkline(selector, passes, key, label) {
   point.setAttribute("cx", lastX);
   point.setAttribute("cy", lastY);
   point.setAttribute("visibility", "visible");
-}
-
-function renderVariation(element, value, baseline) {
-  if (baseline === null || baseline === 0) {
-    element.textContent = "sin base comparable";
-    element.removeAttribute("aria-label");
-    return;
-  }
-
-  const variation = (value - baseline) / Math.abs(baseline);
-  const direction = variation > 0 ? "↑" : variation < 0 ? "↓" : "→";
-  const formattedVariation = new Intl.NumberFormat("es-EC", {
-    style: "percent",
-    maximumFractionDigits: 1,
-    signDisplay: "always"
-  }).format(variation);
-  element.textContent = `${direction} ${formattedVariation} vs. promedio general`;
-  element.setAttribute("aria-label", `Variación de ${formattedVariation} respecto al promedio general`);
 }
 
 function initializeChart() {
@@ -182,6 +153,7 @@ function initializeChart() {
       scales: {
         x: {
           type: "linear",
+          title: { display: true, text: "Fecha", color: "#53635e", font: { family: "DM Sans", size: 10, weight: "600" } },
           grid: { display: false },
           border: { display: false },
           afterBuildTicks: axis => {
@@ -200,7 +172,12 @@ function initializeChart() {
             }
           }
         },
-        y: { min: 0, max: 100, grid: { color: "#edf1ee" }, border: { display: false }, ticks: { stepSize: 25, color: "#85918d", padding: 8, font: { family: "DM Mono", size: 9 }, callback: value => `${value}%` } }
+        y: {
+          min: 0, max: 100,
+          title: { display: true, text: "Porcentaje (%)", color: "#53635e", font: { family: "DM Sans", size: 10, weight: "600" } },
+          grid: { color: "#edf1ee" }, border: { display: false },
+          ticks: { stepSize: 25, color: "#65736f", padding: 8, font: { family: "DM Mono", size: 9 }, callback: value => `${value}%` }
+        }
       }
     }
   });
@@ -236,6 +213,7 @@ function renderMap(passes) {
     });
     marker.addTo(markerLayer);
   }
+  markerLegend.hidden = passes.length === 0;
   if (heatLayer) {
     map.removeLayer(heatLayer);
     heatLayer = null;
@@ -244,12 +222,12 @@ function renderMap(passes) {
     const points = passes.map(pass => [pass.latitud, pass.longitud, Math.max(0.15, pass.indice_acumulacion / 100)]);
     heatLayer = L.heatLayer(points, { radius: 38, blur: 28, maxZoom: 10, gradient: { 0.25: "#e9c873", 0.65: "#e18268", 1: "#d65f50" } }).addTo(map);
   }
-  if (heatToggle.checked) {
+  if (heatToggle.checked && passes.length) {
     if (!heatLegend) {
       heatLegend = L.control({ position: "bottomright" });
       heatLegend.onAdd = () => {
         const container = L.DomUtil.create("div", "heatmap-legend");
-        container.innerHTML = '<strong class="heatmap-legend-title">Índice de Acumulación</strong><div class="heatmap-legend-scale"><span>Baja</span><div class="heatmap-legend-gradient"></div><span>Alta</span></div>';
+        container.innerHTML = '<strong class="heatmap-legend-title">Índice simulado de acumulación</strong><div class="heatmap-legend-scale"><span>Baja</span><div class="heatmap-legend-gradient"></div><span>Alta</span></div>';
         return container;
       };
     }
@@ -298,7 +276,13 @@ function renderChart(passes, selection = null) {
       : `Tendencia por pasada · ${passes.length} ${passes.length === 1 ? "registro" : "registros"} filtrados`;
   chartReset.hidden = !selection;
   chartAggregationFilter.disabled = Boolean(selection);
+  chart.options.scales.x.title.text = isMonthlyAverage ? "Mes" : "Fecha";
+  chart.canvas.hidden = visiblePasses.length === 0;
   trendEmptyState.hidden = visiblePasses.length > 0;
+  chartLegend.hidden = visiblePasses.length === 0;
+  cloudLegendEntry.hidden = chartSeriesFilter.value === "suitability";
+  suitabilityLegendEntry.hidden = chartSeriesFilter.value === "cloud";
+  monthlyNote.hidden = !isMonthlyAverage || visiblePasses.length === 0;
   chart.update();
 }
 
@@ -395,6 +379,7 @@ async function loadPasses() {
     emptyState.querySelector("strong").textContent = "No se pudieron cargar los datos";
     emptyState.querySelector("p").textContent = "Comprueba tu conexión e inténtalo de nuevo.";
     resultCount.textContent = "0 registros";
+    selectionSummary.textContent = "No se pudieron cargar los datos";
   }
 }
 
