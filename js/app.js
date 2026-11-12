@@ -150,7 +150,7 @@ async function loadPasses() {
     document.querySelector("table").hidden = true;
     emptyState.hidden = false;
     emptyState.querySelector("strong").textContent = "No se pudieron cargar los datos";
-    emptyState.querySelector("p").textContent = "Inicia un servidor local y vuelve a cargar la página.";
+    emptyState.querySelector("p").textContent = "Comprueba tu conexión e inténtalo de nuevo.";
     resultCount.textContent = "0 registros";
   }
 }
