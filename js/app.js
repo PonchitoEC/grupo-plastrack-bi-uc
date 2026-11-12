@@ -10,12 +10,20 @@ const platformFilter = document.querySelector("#filter-platform");
 const resetFilters = document.querySelector("#reset-filters");
 
 const map = L.map("map", { scrollWheelZoom: false, zoomControl: true }).setView([-0.8, -90.7], 7);
+const mapContainer = map.getContainer();
+mapContainer.addEventListener("click", () => map.scrollWheelZoom.enable());
+document.addEventListener("click", event => {
+  if (!(event.target instanceof Node) || !mapContainer.contains(event.target)) {
+    map.scrollWheelZoom.disable();
+  }
+});
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 18,
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 const markerLayer = L.layerGroup().addTo(map);
 let heatLayer = null;
+let heatLegend = null;
 let chart = null;
 let allPasses = [];
 let filteredPasses = [];
@@ -122,6 +130,17 @@ function renderMap(passes) {
       radius: 6, color: "#ffffff", weight: 2, fillColor: "#e18268", fillOpacity: 0.95
     });
     marker.bindPopup(`<span class="popup-title">${pass.isla}</span><br>${formatDate(pass.fecha)}<br>${pass.plataforma} · Aptitud ${pass.aptitud_pct}%`);
+    marker.bindTooltip(`${pass.isla} · Índice de acumulación: ${pass.indice_acumulacion}`, {
+      direction: "top"
+    });
+    marker.on("mouseover", () => {
+      marker.setStyle({ fillColor: "#105e50" });
+      marker.openTooltip();
+    });
+    marker.on("mouseout", () => {
+      marker.setStyle({ fillColor: "#e18268" });
+      marker.closeTooltip();
+    });
     marker.addTo(markerLayer);
   }
   if (heatLayer) {
@@ -130,7 +149,20 @@ function renderMap(passes) {
   }
   if (heatToggle.checked && passes.length) {
     const points = passes.map(pass => [pass.latitud, pass.longitud, Math.max(0.15, pass.indice_acumulacion / 100)]);
-    heatLayer = L.heatLayer(points, { radius: 34, blur: 24, maxZoom: 10, gradient: { 0.25: "#e9c873", 0.65: "#e99a68", 1: "#d65f50" } }).addTo(map);
+    heatLayer = L.heatLayer(points, { radius: 38, blur: 28, maxZoom: 10, gradient: { 0.25: "#e9c873", 0.65: "#e18268", 1: "#d65f50" } }).addTo(map);
+  }
+  if (heatToggle.checked) {
+    if (!heatLegend) {
+      heatLegend = L.control({ position: "bottomright" });
+      heatLegend.onAdd = () => {
+        const container = L.DomUtil.create("div", "heatmap-legend");
+        container.innerHTML = '<strong class="heatmap-legend-title">Índice de Acumulación</strong><div class="heatmap-legend-scale"><span>Baja</span><div class="heatmap-legend-gradient"></div><span>Alta</span></div>';
+        return container;
+      };
+    }
+    heatLegend.addTo(map);
+  } else if (heatLegend) {
+    map.removeControl(heatLegend);
   }
 }
 

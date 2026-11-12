@@ -81,6 +81,10 @@ tbody tr { transition: background .15s ease; }tbody tr:hover { background: #f6fa
 .table-footnote { margin: 0; padding: 10px 16px 12px; color: #8b9691; font-size: 9px; }
 footer { display: flex; justify-content: space-between; gap: 12px; padding: 20px 0 24px; color: #88948f; font: 9px var(--mono); letter-spacing: 0; }footer b { color: var(--coral); font-weight: 400; }
 .leaflet-container { font-family: var(--sans); }.leaflet-popup-content-wrapper { border-radius: 2px; }.leaflet-popup-content { margin: 11px 14px; font-size: 11px; line-height: 1.65; }.popup-title { color: var(--green-dark); font-weight: 700; }.leaflet-control-attribution { font-size: 8px !important; }
+.heatmap-legend { padding: 9px 11px; background: rgba(255, 255, 255, .9); border: 1px solid rgba(23, 45, 49, .14); border-radius: 4px; box-shadow: 0 1px 5px rgba(23, 45, 49, .18); color: #52615c; font-size: 9px; }
+.heatmap-legend-title { display: block; margin-bottom: 6px; color: #172d31; font-size: 10px; font-weight: 600; }
+.heatmap-legend-scale { display: flex; align-items: center; gap: 7px; }
+.heatmap-legend-gradient { width: 76px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #e9c873, #d65f50); }
 
 @media (max-width: 900px) {
   .app-shell { padding: 0 26px; }.visual-grid { grid-template-columns: 1fr; }.map { height: 320px; }.chart-wrap { height: 260px; }

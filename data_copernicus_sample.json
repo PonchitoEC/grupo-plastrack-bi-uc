@@ -18,4 +18,4 @@
     { "id": "S2-GAL-014", "fecha": "2025-06-17", "plataforma": "Sentinel-2B", "isla": "Española", "latitud": -1.31, "longitud": -89.77, "nubosidad_pct": 17, "aptitud_pct": 83, "indice_acumulacion": 91 },
     { "id": "S2-GAL-015", "fecha": "2025-06-29", "plataforma": "Sentinel-2A", "isla": "Isabela", "latitud": -0.91, "longitud": -91.18, "nubosidad_pct": 31, "aptitud_pct": 69, "indice_acumulacion": 63 }
   ]
-}
+} 
