@@ -1,10 +1,4 @@
 const DATA_URL = "./data_copernicus_sample.json";
-const islandFilter = document.querySelector("#island-filter");
-const dateFromFilter = document.querySelector("#date-from");
-const dateToFilter = document.querySelector("#date-to");
-const cloudMaxFilter = document.querySelector("#cloud-max");
-const cloudValue = document.querySelector("#cloud-value");
-const resetButton = document.querySelector("#reset-filters");
 const heatToggle = document.querySelector("#heat-toggle");
 const tableBody = document.querySelector("#pass-table-body");
 const emptyState = document.querySelector("#empty-state");
@@ -50,19 +44,6 @@ function initializeChart() {
       }
     }
   });
-}
-
-function getFilteredPasses() {
-  const island = islandFilter.value;
-  const dateFrom = dateFromFilter.value;
-  const dateTo = dateToFilter.value;
-  const maxCloud = Number(cloudMaxFilter.value);
-  return allPasses.filter(pass =>
-    (!island || pass.isla === island) &&
-    (!dateFrom || pass.fecha >= dateFrom) &&
-    (!dateTo || pass.fecha <= dateTo) &&
-    pass.nubosidad_pct <= maxCloud
-  );
 }
 
 function renderKpis(passes) {
@@ -118,21 +99,10 @@ function renderTable(passes) {
 }
 
 function updateDashboard() {
-  const filteredPasses = getFilteredPasses();
-  renderKpis(filteredPasses);
-  renderMap(filteredPasses);
-  renderChart(filteredPasses);
-  renderTable(filteredPasses);
-}
-
-function populateIslandFilter(passes) {
-  const islands = [...new Set(passes.map(pass => pass.isla))].sort((a, b) => a.localeCompare(b, "es"));
-  for (const island of islands) {
-    const option = document.createElement("option");
-    option.value = island;
-    option.textContent = island;
-    islandFilter.append(option);
-  }
+  renderKpis(allPasses);
+  renderMap(allPasses);
+  renderChart(allPasses);
+  renderTable(allPasses);
 }
 
 async function loadPasses() {
@@ -141,7 +111,6 @@ async function loadPasses() {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const dataset = await response.json();
     allPasses = dataset.pasadas;
-    populateIslandFilter(allPasses);
     initializeChart();
     updateDashboard();
   } catch (error) {
@@ -155,21 +124,6 @@ async function loadPasses() {
   }
 }
 
-for (const control of [islandFilter, dateFromFilter, dateToFilter, cloudMaxFilter]) {
-  control.addEventListener("input", () => {
-    cloudValue.textContent = `${cloudMaxFilter.value}%`;
-    updateDashboard();
-  });
-  control.addEventListener("change", updateDashboard);
-}
 heatToggle.addEventListener("change", updateDashboard);
-resetButton.addEventListener("click", () => {
-  islandFilter.value = "";
-  dateFromFilter.value = "";
-  dateToFilter.value = "";
-  cloudMaxFilter.value = "100";
-  cloudValue.textContent = "100%";
-  updateDashboard();
-});
 
 loadPasses();

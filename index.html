@@ -32,16 +32,6 @@
         <div class="notice"><span class="notice-icon" aria-hidden="true">i</span><span>Datos simulados. El índice es ilustrativo y <strong>no detecta plástico real.</strong></span></div>
       </section>
 
-      <section class="filter-bar" aria-label="Filtros de pasadas">
-        <label class="filter-field island-filter" for="island-filter"><span>ISLA</span>
-          <select id="island-filter"><option value="">Todas las islas</option></select>
-        </label>
-        <label class="filter-field" for="date-from"><span>DESDE</span><input id="date-from" type="date" min="2025-01-01" max="2025-12-31"></label>
-        <label class="filter-field" for="date-to"><span>HASTA</span><input id="date-to" type="date" min="2025-01-01" max="2025-12-31"></label>
-        <label class="filter-field cloud-filter" for="cloud-max"><span>NUBOSIDAD MÁX. <b id="cloud-value">100%</b></span><input id="cloud-max" type="range" min="0" max="100" value="100"></label>
-        <button class="reset-button" id="reset-filters" type="button"><span aria-hidden="true">↺</span> Restablecer</button>
-      </section>
-
       <section class="kpi-grid" aria-label="Indicadores del conjunto filtrado">
         <article class="kpi kpi-primary"><div class="kpi-label">PASADAS <span class="kpi-glyph" aria-hidden="true">◉</span></div><div class="kpi-value" id="kpi-passes">—</div><div class="kpi-foot">escenas seleccionadas</div></article>
         <article class="kpi"><div class="kpi-label">NUBOSIDAD MEDIA <span class="kpi-glyph cloud-glyph" aria-hidden="true">☁</span></div><div class="kpi-value" id="kpi-cloud">—<small>%</small></div><div class="kpi-foot">porcentaje de cobertura</div></article>
