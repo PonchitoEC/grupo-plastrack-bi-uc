@@ -18,6 +18,7 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 }).addTo(map);
 const markerLayer = L.layerGroup().addTo(map);
 let heatLayer = null;
+let heatLegend = null;
 let chart = null;
 let allPasses = [];
 
@@ -94,6 +95,19 @@ function renderMap(passes) {
   if (heatToggle.checked && passes.length) {
     const points = passes.map(pass => [pass.latitud, pass.longitud, Math.max(0.15, pass.indice_acumulacion / 100)]);
     heatLayer = L.heatLayer(points, { radius: 38, blur: 28, maxZoom: 10, gradient: { 0.25: "#e9c873", 0.65: "#e18268", 1: "#d65f50" } }).addTo(map);
+  }
+  if (heatToggle.checked) {
+    if (!heatLegend) {
+      heatLegend = L.control({ position: "bottomright" });
+      heatLegend.onAdd = () => {
+        const container = L.DomUtil.create("div", "heatmap-legend");
+        container.innerHTML = '<strong class="heatmap-legend-title">Índice de Acumulación</strong><div class="heatmap-legend-scale"><span>Baja</span><div class="heatmap-legend-gradient"></div><span>Alta</span></div>';
+        return container;
+      };
+    }
+    heatLegend.addTo(map);
+  } else if (heatLegend) {
+    map.removeControl(heatLegend);
   }
 }
 
