@@ -40,6 +40,8 @@ const formatDate = date => new Intl.DateTimeFormat("es-EC", {
 const formatMonth = month => new Intl.DateTimeFormat("es-EC", {
   month: "short", year: "numeric", timeZone: "UTC"
 }).format(new Date(`${month}-01T00:00:00Z`));
+const dateToTimestamp = date => Date.parse(`${date.length === 7 ? `${date}-01` : date}T00:00:00Z`);
+const timestampToDate = timestamp => new Date(Number(timestamp)).toISOString().slice(0, 10);
 const average = (passes, key) => passes.length
   ? passes.reduce((sum, pass) => sum + pass[key], 0) / passes.length
   : null;
@@ -160,6 +162,12 @@ function initializeChart() {
           titleFont: { family: "DM Mono" },
           bodyFont: { family: "DM Sans" },
           callbacks: {
+            title: items => {
+              const date = timestampToDate(items[0].parsed.x);
+              return chartAggregationFilter.value === "month" && !selectedPass
+                ? formatMonth(date.slice(0, 7))
+                : formatDate(date);
+            },
             label: contextItem => {
               const count = contextItem.dataset.periodCounts?.[contextItem.dataIndex];
               const value = new Intl.NumberFormat("es-EC", { maximumFractionDigits: 1 }).format(contextItem.parsed.y);
@@ -172,7 +180,26 @@ function initializeChart() {
         }
       },
       scales: {
-        x: { grid: { display: false }, border: { display: false }, ticks: { color: "#85918d", maxRotation: 0, autoSkip: true, maxTicksLimit: 7, font: { family: "DM Mono", size: 9 } } },
+        x: {
+          type: "linear",
+          grid: { display: false },
+          border: { display: false },
+          afterBuildTicks: axis => {
+            if (chartAggregationFilter.value === "month" && !selectedPass) {
+              axis.ticks = axis.chart.data.datasets[0].data.map(point => ({ value: point.x }));
+            }
+          },
+          ticks: {
+            color: "#85918d", maxRotation: 0, autoSkip: true, maxTicksLimit: 7,
+            font: { family: "DM Mono", size: 9 },
+            callback: value => {
+              const date = timestampToDate(value);
+              return chartAggregationFilter.value === "month" && !selectedPass
+                ? formatMonth(date.slice(0, 7))
+                : formatDate(date);
+            }
+          }
+        },
         y: { min: 0, max: 100, grid: { color: "#edf1ee" }, border: { display: false }, ticks: { stepSize: 25, color: "#85918d", padding: 8, font: { family: "DM Mono", size: 9 }, callback: value => `${value}%` } }
       }
     }
@@ -248,7 +275,10 @@ function renderChart(passes, selection = null) {
     { key: "aptitud_pct", dataset: chart.data.datasets[1], selectorValue: "suitability" }
   ];
   for (const { key, dataset, selectorValue } of series) {
-    dataset.data = visiblePasses.map(pass => pass[key]);
+    dataset.data = visiblePasses.map(pass => ({
+      x: dateToTimestamp(pass.period ?? pass.fecha),
+      y: pass[key]
+    }));
     dataset.hidden = chartSeriesFilter.value !== "both" && chartSeriesFilter.value !== selectorValue;
     dataset.periodCounts = isMonthlyAverage ? visiblePasses.map(pass => pass.count) : [];
   }
