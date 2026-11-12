@@ -11,6 +11,8 @@ const resetFilters = document.querySelector("#reset-filters");
 const trendEmptyState = document.querySelector("#trend-empty-state");
 const chartSelection = document.querySelector("#chart-selection");
 const chartReset = document.querySelector("#chart-reset");
+const chartSeriesFilter = document.querySelector("#chart-series");
+const chartAggregationFilter = document.querySelector("#chart-aggregation");
 
 const map = L.map("map", { scrollWheelZoom: false, zoomControl: true }).setView([-0.8, -90.7], 7);
 const mapContainer = map.getContainer();
@@ -35,6 +37,9 @@ let filteredPasses = [];
 const formatDate = date => new Intl.DateTimeFormat("es-EC", {
   day: "2-digit", month: "short", year: "numeric", timeZone: "UTC"
 }).format(new Date(`${date}T00:00:00Z`));
+const formatMonth = month => new Intl.DateTimeFormat("es-EC", {
+  month: "short", year: "numeric", timeZone: "UTC"
+}).format(new Date(`${month}-01T00:00:00Z`));
 const average = (passes, key) => passes.length
   ? passes.reduce((sum, pass) => sum + pass[key], 0) / passes.length
   : null;
@@ -149,7 +154,22 @@ function initializeChart() {
       interaction: { intersect: false, mode: "index" },
       plugins: {
         legend: { display: false },
-        tooltip: { backgroundColor: "#172d31", padding: 10, titleFont: { family: "DM Mono" }, bodyFont: { family: "DM Sans" }, callbacks: { label: contextItem => ` ${contextItem.dataset.label}: ${contextItem.parsed.y}%` } }
+        tooltip: {
+          backgroundColor: "#172d31",
+          padding: 10,
+          titleFont: { family: "DM Mono" },
+          bodyFont: { family: "DM Sans" },
+          callbacks: {
+            label: contextItem => {
+              const count = contextItem.dataset.periodCounts?.[contextItem.dataIndex];
+              const value = new Intl.NumberFormat("es-EC", { maximumFractionDigits: 1 }).format(contextItem.parsed.y);
+              const averageNote = count
+                ? ` (promedio de ${count} ${count === 1 ? "pasada" : "pasadas"})`
+                : "";
+              return ` ${contextItem.dataset.label}: ${value}%${averageNote}`;
+            }
+          }
+        }
       },
       scales: {
         x: { grid: { display: false }, border: { display: false }, ticks: { color: "#85918d", maxRotation: 0, autoSkip: true, maxTicksLimit: 7, font: { family: "DM Mono", size: 9 } } },
@@ -213,25 +233,62 @@ function renderMap(passes) {
 }
 
 function renderChart(passes, selection = null) {
-  const visiblePasses = selection ? [selection] : passes;
-  chart.data.labels = visiblePasses.map(pass => formatDate(pass.fecha));
-  chart.data.datasets[0].data = visiblePasses.map(pass => pass.nubosidad_pct);
-  chart.data.datasets[1].data = visiblePasses.map(pass => pass.aptitud_pct);
-  const dates = visiblePasses.map(pass => pass.fecha).sort();
+  const isMonthlyAverage = !selection && chartAggregationFilter.value === "month";
+  const visiblePasses = selection
+    ? [selection]
+    : isMonthlyAverage
+      ? aggregateMonthlyPasses(passes)
+      : passes.slice().sort((first, second) => first.fecha.localeCompare(second.fecha));
+  const dates = visiblePasses.map(pass => selection ? pass.fecha : pass.period ?? pass.fecha);
+  chart.data.labels = visiblePasses.map(pass =>
+    isMonthlyAverage ? formatMonth(pass.period) : formatDate(pass.fecha)
+  );
+  const series = [
+    { key: "nubosidad_pct", dataset: chart.data.datasets[0], selectorValue: "cloud" },
+    { key: "aptitud_pct", dataset: chart.data.datasets[1], selectorValue: "suitability" }
+  ];
+  for (const { key, dataset, selectorValue } of series) {
+    dataset.data = visiblePasses.map(pass => pass[key]);
+    dataset.hidden = chartSeriesFilter.value !== "both" && chartSeriesFilter.value !== selectorValue;
+    dataset.periodCounts = isMonthlyAverage ? visiblePasses.map(pass => pass.count) : [];
+  }
+  const selectedSeries = chartSeriesFilter.options[chartSeriesFilter.selectedIndex].textContent.toLowerCase();
   chart.canvas.setAttribute(
     "aria-label",
     dates.length
       ? selection
-        ? `Gráfico de nubosidad y aptitud para ${selection.isla}, ${formatDate(selection.fecha)}: nubosidad ${selection.nubosidad_pct}%, aptitud ${selection.aptitud_pct}%.`
-        : `Gráfico de nubosidad y aptitud del sensor para ${dates.length} pasadas, del ${formatDate(dates[0])} al ${formatDate(dates[dates.length - 1])}.`
+        ? `Gráfico de ${selectedSeries} para ${selection.isla}, ${formatDate(selection.fecha)}. Nubosidad ${selection.nubosidad_pct}%, aptitud ${selection.aptitud_pct}%.`
+        : `Gráfico de ${selectedSeries} para ${dates.length} ${isMonthlyAverage ? "promedios mensuales" : "pasadas"}, del ${isMonthlyAverage ? formatMonth(dates[0]) : formatDate(dates[0])} al ${isMonthlyAverage ? formatMonth(dates.at(-1)) : formatDate(dates.at(-1))}.`
       : "Gráfico sin pasadas coincidentes con los filtros seleccionados."
   );
   chartSelection.textContent = selection
     ? `${selection.isla} · ${formatDate(selection.fecha)} · ${selection.plataforma} · Índice ${selection.indice_acumulacion}/100`
-    : "Resumen de todas las pasadas";
+    : isMonthlyAverage
+      ? `Promedios mensuales (resumen, no nuevas observaciones) · ${passes.length} ${passes.length === 1 ? "pasada filtrada" : "pasadas filtradas"}`
+      : `Tendencia por pasada · ${passes.length} ${passes.length === 1 ? "registro" : "registros"} filtrados`;
   chartReset.hidden = !selection;
+  chartAggregationFilter.disabled = Boolean(selection);
   trendEmptyState.hidden = visiblePasses.length > 0;
   chart.update();
+}
+
+function aggregateMonthlyPasses(passes) {
+  const months = new Map();
+  for (const pass of passes) {
+    const period = pass.fecha.slice(0, 7);
+    const month = months.get(period) ?? { period, count: 0, nubosidad_pct: 0, aptitud_pct: 0 };
+    month.count += 1;
+    month.nubosidad_pct += pass.nubosidad_pct;
+    month.aptitud_pct += pass.aptitud_pct;
+    months.set(period, month);
+  }
+  return [...months.values()]
+    .sort((first, second) => first.period.localeCompare(second.period))
+    .map(month => ({
+      ...month,
+      nubosidad_pct: month.nubosidad_pct / month.count,
+      aptitud_pct: month.aptitud_pct / month.count
+    }));
 }
 
 function renderTable(passes) {
@@ -319,6 +376,9 @@ chartReset.addEventListener("click", () => {
     marker.setStyle({ fillColor: "#e18268", radius: 6 });
   });
 });
+
+chartSeriesFilter.addEventListener("change", () => renderChart(filteredPasses, selectedPass));
+chartAggregationFilter.addEventListener("change", () => renderChart(filteredPasses, selectedPass));
 
 for (const filter of [dateFromFilter, dateToFilter, islandFilter, platformFilter]) {
   filter.addEventListener(filter.type === "date" ? "input" : "change", applyFilters);
