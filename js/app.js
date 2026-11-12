@@ -3,6 +3,11 @@ const heatToggle = document.querySelector("#heat-toggle");
 const tableBody = document.querySelector("#pass-table-body");
 const emptyState = document.querySelector("#empty-state");
 const resultCount = document.querySelector("#result-count");
+const dateFromFilter = document.querySelector("#filter-date-from");
+const dateToFilter = document.querySelector("#filter-date-to");
+const islandFilter = document.querySelector("#filter-island");
+const platformFilter = document.querySelector("#filter-platform");
+const resetFilters = document.querySelector("#reset-filters");
 const trendEmptyState = document.querySelector("#trend-empty-state");
 
 const map = L.map("map", { scrollWheelZoom: false, zoomControl: true }).setView([-0.8, -90.7], 7);
@@ -22,11 +27,107 @@ let heatLayer = null;
 let heatLegend = null;
 let chart = null;
 let allPasses = [];
+let filteredPasses = [];
 
-const formatPercent = value => `${Math.round(value)}%`;
 const formatDate = date => new Intl.DateTimeFormat("es-EC", {
   day: "2-digit", month: "short", year: "numeric", timeZone: "UTC"
 }).format(new Date(`${date}T00:00:00Z`));
+const average = (passes, key) => passes.length
+  ? passes.reduce((sum, pass) => sum + pass[key], 0) / passes.length
+  : null;
+
+function setKpiStatus(cardId, statusId, status, tone) {
+  const card = document.querySelector(cardId);
+  card.dataset.status = tone;
+  document.querySelector(statusId).textContent = status;
+}
+
+function renderKpis(passes) {
+  document.querySelector("#kpi-passes").textContent = passes.length;
+  const passesCoverage = allPasses.length ? passes.length / allPasses.length : 0;
+  const passesProgress = document.querySelector("#kpi-passes-progress");
+  passesProgress.style.width = `${passesCoverage * 100}%`;
+  passesProgress.parentElement.setAttribute("aria-valuenow", Math.round(passesCoverage * 100));
+  const passesStatus = passes.length === 0
+    ? ["Sin datos", "empty"]
+    : passesCoverage >= 0.75
+      ? ["Cobertura alta", "good"]
+      : passesCoverage >= 0.4
+        ? ["Cobertura moderada", "watch"]
+        : ["Cobertura reducida", "high"];
+  setKpiStatus("#kpi-card-passes", "#kpi-passes-status", ...passesStatus);
+  renderVariation(document.querySelector("#kpi-passes-foot"), passes.length, allPasses.length);
+
+  const metrics = [
+    { selector: "#kpi-cloud", statusSelector: "#kpi-cloud-status", footSelector: "#kpi-cloud-foot", cardSelector: "#kpi-card-cloud", key: "nubosidad_pct", suffix: "%", sparklineSelector: "#kpi-cloud-sparkline", label: "nubosidad", getStatus: value => value <= 20 ? ["Óptimo", "good"] : value <= 50 ? ["Moderado", "watch"] : ["Alto", "high"] },
+    { selector: "#kpi-suitability", statusSelector: "#kpi-suitability-status", footSelector: "#kpi-suitability-foot", cardSelector: "#kpi-card-suitability", key: "aptitud_pct", suffix: "%", sparklineSelector: "#kpi-suitability-sparkline", label: "aptitud", getStatus: value => value >= 80 ? ["Óptimo", "good"] : value >= 60 ? ["Moderado", "watch"] : ["Bajo", "high"] },
+    { selector: "#kpi-index", statusSelector: "#kpi-index-status", footSelector: "#kpi-index-foot", cardSelector: "#kpi-card-index", key: "indice_acumulacion", suffix: "/100", sparklineSelector: "#kpi-index-sparkline", label: "índice ilustrativo", getStatus: value => value <= 35 ? ["Bajo", "good"] : value <= 65 ? ["Moderado", "watch"] : ["Alto", "high"] }
+  ];
+
+  for (const metric of metrics) {
+    const value = average(passes, metric.key);
+    renderKpiSparkline(metric.sparklineSelector, passes, metric.key, metric.label);
+    const element = document.querySelector(metric.selector);
+    element.innerHTML = `${value === null ? "—" : Math.round(value)}<small>${metric.suffix}</small>`;
+    if (value === null) {
+      setKpiStatus(metric.cardSelector, metric.statusSelector, "Sin datos", "empty");
+      document.querySelector(metric.footSelector).textContent = "sin comparación";
+      continue;
+    }
+
+    const [status, tone] = metric.getStatus(value);
+    setKpiStatus(metric.cardSelector, metric.statusSelector, status, tone);
+
+    const baseline = average(allPasses, metric.key);
+    renderVariation(document.querySelector(metric.footSelector), value, baseline);
+  }
+}
+
+function renderKpiSparkline(selector, passes, key, label) {
+  const sparkline = document.querySelector(selector);
+  const line = sparkline.querySelector("polyline");
+  const point = sparkline.querySelector("circle");
+  const values = passes
+    .slice()
+    .sort((first, second) => first.fecha.localeCompare(second.fecha))
+    .map(pass => pass[key]);
+
+  sparkline.setAttribute("aria-label", `Tendencia de ${label} en ${values.length} ${values.length === 1 ? "pasada" : "pasadas"} filtradas`);
+  if (!values.length) {
+    line.setAttribute("points", "");
+    point.setAttribute("visibility", "hidden");
+    return;
+  }
+
+  const coordinates = values.map((value, index) => {
+    const x = values.length === 1 ? 50 : (index / (values.length - 1)) * 100;
+    const y = 24 - (value / 100) * 20;
+    return [x, y];
+  });
+  line.setAttribute("points", coordinates.map(([x, y]) => `${x},${y}`).join(" "));
+  const [lastX, lastY] = coordinates.at(-1);
+  point.setAttribute("cx", lastX);
+  point.setAttribute("cy", lastY);
+  point.setAttribute("visibility", "visible");
+}
+
+function renderVariation(element, value, baseline) {
+  if (baseline === null || baseline === 0) {
+    element.textContent = "sin base comparable";
+    element.removeAttribute("aria-label");
+    return;
+  }
+
+  const variation = (value - baseline) / Math.abs(baseline);
+  const direction = variation > 0 ? "↑" : variation < 0 ? "↓" : "→";
+  const formattedVariation = new Intl.NumberFormat("es-EC", {
+    style: "percent",
+    maximumFractionDigits: 1,
+    signDisplay: "always"
+  }).format(variation);
+  element.textContent = `${direction} ${formattedVariation} vs. promedio general`;
+  element.setAttribute("aria-label", `Variación de ${formattedVariation} respecto al promedio general`);
+}
 
 function initializeChart() {
   const context = document.querySelector("#trend-chart");
@@ -53,20 +154,6 @@ function initializeChart() {
       }
     }
   });
-}
-
-function renderKpis(passes) {
-  document.querySelector("#kpi-passes").textContent = passes.length;
-  const averages = [
-    ["#kpi-cloud", "nubosidad_pct"],
-    ["#kpi-suitability", "aptitud_pct"],
-    ["#kpi-index", "indice_acumulacion"]
-  ];
-  for (const [selector, key] of averages) {
-    const element = document.querySelector(selector);
-    const average = passes.length ? passes.reduce((sum, pass) => sum + pass[key], 0) / passes.length : null;
-    element.innerHTML = average === null ? "—" : `${Math.round(average)}<small>${key === "indice_acumulacion" ? "/100" : "%"}</small>`;
-  }
 }
 
 function renderMap(passes) {
@@ -140,10 +227,45 @@ function renderTable(passes) {
 }
 
 function updateDashboard() {
-  renderKpis(allPasses);
-  renderMap(allPasses);
-  renderChart(allPasses);
-  renderTable(allPasses);
+  renderKpis(filteredPasses);
+  renderMap(filteredPasses);
+  renderChart(filteredPasses);
+  renderTable(filteredPasses);
+}
+
+function applyFilters() {
+  const from = dateFromFilter.value;
+  const to = dateToFilter.value;
+  const island = islandFilter.value;
+  const platform = platformFilter.value;
+  filteredPasses = allPasses.filter(pass =>
+    (!from || pass.fecha >= from) &&
+    (!to || pass.fecha <= to) &&
+    (!island || pass.isla === island) &&
+    (!platform || pass.plataforma === platform)
+  );
+  updateDashboard();
+}
+
+function populateFilters() {
+  const dates = allPasses.map(pass => pass.fecha).sort();
+  dateFromFilter.min = dates[0];
+  dateFromFilter.max = dates.at(-1);
+  dateToFilter.min = dates[0];
+  dateToFilter.max = dates.at(-1);
+  dateFromFilter.value = dates[0];
+  dateToFilter.value = dates.at(-1);
+
+  const addOptions = (select, values) => {
+    for (const value of [...new Set(values)].sort()) {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = value;
+      select.append(option);
+    }
+  };
+  addOptions(islandFilter, allPasses.map(pass => pass.isla));
+  addOptions(platformFilter, allPasses.map(pass => pass.plataforma));
 }
 
 async function loadPasses() {
@@ -152,8 +274,9 @@ async function loadPasses() {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const dataset = await response.json();
     allPasses = dataset.pasadas;
+    populateFilters();
     initializeChart();
-    updateDashboard();
+    applyFilters();
   } catch (error) {
     console.error("No se pudo cargar el conjunto de pasadas:", error);
     tableBody.replaceChildren();
@@ -166,5 +289,15 @@ async function loadPasses() {
 }
 
 heatToggle.addEventListener("change", updateDashboard);
+for (const filter of [dateFromFilter, dateToFilter, islandFilter, platformFilter]) {
+  filter.addEventListener(filter.type === "date" ? "input" : "change", applyFilters);
+}
+resetFilters.addEventListener("click", () => {
+  dateFromFilter.value = dateFromFilter.min;
+  dateToFilter.value = dateToFilter.max;
+  islandFilter.value = "";
+  platformFilter.value = "";
+  applyFilters();
+});
 
 loadPasses();
