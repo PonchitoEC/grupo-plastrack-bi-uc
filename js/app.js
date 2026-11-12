@@ -8,6 +8,7 @@ const dateToFilter = document.querySelector("#filter-date-to");
 const islandFilter = document.querySelector("#filter-island");
 const platformFilter = document.querySelector("#filter-platform");
 const resetFilters = document.querySelector("#reset-filters");
+const trendEmptyState = document.querySelector("#trend-empty-state");
 
 const map = L.map("map", { scrollWheelZoom: false, zoomControl: true }).setView([-0.8, -90.7], 7);
 const mapContainer = map.getContainer();
@@ -202,6 +203,14 @@ function renderChart(passes) {
   chart.data.labels = passes.map(pass => formatDate(pass.fecha));
   chart.data.datasets[0].data = passes.map(pass => pass.nubosidad_pct);
   chart.data.datasets[1].data = passes.map(pass => pass.aptitud_pct);
+  const dates = passes.map(pass => pass.fecha).sort();
+  chart.canvas.setAttribute(
+    "aria-label",
+    dates.length
+      ? `Gráfico de nubosidad y aptitud del sensor para ${dates.length} pasadas, del ${formatDate(dates[0])} al ${formatDate(dates[dates.length - 1])}.`
+      : "Gráfico sin pasadas coincidentes con los filtros seleccionados."
+  );
+  trendEmptyState.hidden = passes.length > 0;
   chart.update();
 }
 
