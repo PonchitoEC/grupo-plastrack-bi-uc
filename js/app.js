@@ -4,6 +4,8 @@ const tableBody = document.querySelector("#pass-table-body");
 const emptyState = document.querySelector("#empty-state");
 const resultCount = document.querySelector("#result-count");
 const trendEmptyState = document.querySelector("#trend-empty-state");
+const chartSelection = document.querySelector("#chart-selection");
+const chartReset = document.querySelector("#chart-reset");
 
 const map = L.map("map", { scrollWheelZoom: false, zoomControl: true }).setView([-0.8, -90.7], 7);
 const mapContainer = map.getContainer();
@@ -22,6 +24,7 @@ let heatLayer = null;
 let heatLegend = null;
 let chart = null;
 let allPasses = [];
+let selectedPass = null;
 
 const formatPercent = value => `${Math.round(value)}%`;
 const formatDate = date => new Intl.DateTimeFormat("es-EC", {
@@ -72,8 +75,10 @@ function renderKpis(passes) {
 function renderMap(passes) {
   markerLayer.clearLayers();
   for (const pass of passes) {
+    const isSelected = selectedPass?.id === pass.id;
     const marker = L.circleMarker([pass.latitud, pass.longitud], {
-      radius: 6, color: "#ffffff", weight: 2, fillColor: "#e18268", fillOpacity: 0.95
+      radius: isSelected ? 8 : 6, color: "#ffffff", weight: 2,
+      fillColor: isSelected ? "#105e50" : "#e18268", fillOpacity: 0.95
     });
     marker.bindPopup(`<span class="popup-title">${pass.isla}</span><br>${formatDate(pass.fecha)}<br>${pass.plataforma} · Aptitud ${pass.aptitud_pct}%`);
     marker.bindTooltip(`${pass.isla} · Índice de acumulación: ${pass.indice_acumulacion}`, {
@@ -84,8 +89,16 @@ function renderMap(passes) {
       marker.openTooltip();
     });
     marker.on("mouseout", () => {
-      marker.setStyle({ fillColor: "#e18268" });
+      marker.setStyle({ fillColor: selectedPass?.id === pass.id ? "#105e50" : "#e18268" });
       marker.closeTooltip();
+    });
+    marker.on("click", () => {
+      selectedPass = pass;
+      renderChart(allPasses, selectedPass);
+      markerLayer.eachLayer(layer => {
+        const selected = layer === marker;
+        layer.setStyle({ fillColor: selected ? "#105e50" : "#e18268", radius: selected ? 8 : 6 });
+      });
     });
     marker.addTo(markerLayer);
   }
@@ -112,18 +125,25 @@ function renderMap(passes) {
   }
 }
 
-function renderChart(passes) {
-  chart.data.labels = passes.map(pass => formatDate(pass.fecha));
-  chart.data.datasets[0].data = passes.map(pass => pass.nubosidad_pct);
-  chart.data.datasets[1].data = passes.map(pass => pass.aptitud_pct);
-  const dates = passes.map(pass => pass.fecha).sort();
+function renderChart(passes, selection = null) {
+  const visiblePasses = selection ? [selection] : passes;
+  chart.data.labels = visiblePasses.map(pass => formatDate(pass.fecha));
+  chart.data.datasets[0].data = visiblePasses.map(pass => pass.nubosidad_pct);
+  chart.data.datasets[1].data = visiblePasses.map(pass => pass.aptitud_pct);
+  const dates = visiblePasses.map(pass => pass.fecha).sort();
   chart.canvas.setAttribute(
     "aria-label",
     dates.length
-      ? `Gráfico de nubosidad y aptitud del sensor para ${dates.length} pasadas, del ${formatDate(dates[0])} al ${formatDate(dates[dates.length - 1])}.`
+      ? selection
+        ? `Gráfico de nubosidad y aptitud para ${selection.isla}, ${formatDate(selection.fecha)}: nubosidad ${selection.nubosidad_pct}%, aptitud ${selection.aptitud_pct}%.`
+        : `Gráfico de nubosidad y aptitud del sensor para ${dates.length} pasadas, del ${formatDate(dates[0])} al ${formatDate(dates[dates.length - 1])}.`
       : "Gráfico sin pasadas coincidentes con los filtros seleccionados."
   );
-  trendEmptyState.hidden = passes.length > 0;
+  chartSelection.textContent = selection
+    ? `${selection.isla} · ${formatDate(selection.fecha)} · ${selection.plataforma} · Índice ${selection.indice_acumulacion}/100`
+    : "Resumen de todas las pasadas";
+  chartReset.hidden = !selection;
+  trendEmptyState.hidden = visiblePasses.length > 0;
   chart.update();
 }
 
@@ -142,7 +162,7 @@ function renderTable(passes) {
 function updateDashboard() {
   renderKpis(allPasses);
   renderMap(allPasses);
-  renderChart(allPasses);
+  renderChart(allPasses, selectedPass);
   renderTable(allPasses);
 }
 
@@ -166,5 +186,12 @@ async function loadPasses() {
 }
 
 heatToggle.addEventListener("change", updateDashboard);
+chartReset.addEventListener("click", () => {
+  selectedPass = null;
+  renderChart(allPasses);
+  markerLayer.eachLayer(marker => {
+    marker.setStyle({ fillColor: "#e18268", radius: 6 });
+  });
+});
 
 loadPasses();
