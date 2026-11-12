@@ -9,6 +9,7 @@ const heatToggle = document.querySelector("#heat-toggle");
 const tableBody = document.querySelector("#pass-table-body");
 const emptyState = document.querySelector("#empty-state");
 const resultCount = document.querySelector("#result-count");
+const trendEmptyState = document.querySelector("#trend-empty-state");
 
 const map = L.map("map", { scrollWheelZoom: false, zoomControl: true }).setView([-0.8, -90.7], 7);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -73,30 +74,8 @@ function initializeChart() {
         }
       },
       scales: {
-        x: {
-          grid: { display: false },
-          border: { display: false },
-          ticks: {
-            color: "#85918d",
-            maxRotation: 0,
-            autoSkip: true,
-            maxTicksLimit: 7,
-            font: { family: "DM Mono", size: 9 }
-          }
-        },
-        y: {
-          min: 0,
-          max: 100,
-          grid: { color: "#edf1ee" },
-          border: { display: false },
-          ticks: {
-            stepSize: 25,
-            color: "#85918d",
-            padding: 8,
-            font: { family: "DM Mono", size: 9 },
-            callback: value => `${value}%`
-          }
-        }
+        x: { grid: { display: false }, border: { display: false }, ticks: { color: "#85918d", maxRotation: 0, autoSkip: true, maxTicksLimit: 7, font: { family: "DM Mono", size: 9 } } },
+        y: { min: 0, max: 100, grid: { color: "#edf1ee" }, border: { display: false }, ticks: { stepSize: 25, color: "#85918d", padding: 8, font: { family: "DM Mono", size: 9 }, callback: value => `${value}%` } }
       }
     }
   });
