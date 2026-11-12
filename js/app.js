@@ -75,7 +75,7 @@ function renderMap(passes) {
   }
   if (heatToggle.checked && passes.length) {
     const points = passes.map(pass => [pass.latitud, pass.longitud, Math.max(0.15, pass.indice_acumulacion / 100)]);
-    heatLayer = L.heatLayer(points, { radius: 34, blur: 24, maxZoom: 10, gradient: { 0.25: "#e9c873", 0.65: "#e99a68", 1: "#d65f50" } }).addTo(map);
+    heatLayer = L.heatLayer(points, { radius: 38, blur: 28, maxZoom: 10, gradient: { 0.25: "#e9c873", 0.65: "#e18268", 1: "#d65f50" } }).addTo(map);
   }
 }
 
