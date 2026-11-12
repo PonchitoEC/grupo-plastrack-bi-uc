@@ -32,11 +32,25 @@
         <div class="notice"><span class="notice-icon" aria-hidden="true">i</span><span>Datos simulados. El índice es ilustrativo y <strong>no detecta plástico real.</strong></span></div>
       </section>
 
+      <section class="filter-panel" aria-label="Filtros de pasadas">
+        <div class="filter-heading">
+          <div><p class="filter-kicker">EXPLORACIÓN DINÁMICA</p><h2>Filtrar pasadas</h2></div>
+          <span class="filter-hint"><span class="filter-live-dot" aria-hidden="true"></span>Resultados en tiempo real</span>
+        </div>
+        <div class="filter-controls">
+          <label class="filter-field">DESDE<input id="filter-date-from" type="date" aria-label="Fecha inicial"></label>
+          <label class="filter-field">HASTA<input id="filter-date-to" type="date" aria-label="Fecha final"></label>
+          <label class="filter-field">ISLA<select id="filter-island" aria-label="Filtrar por isla"><option value="">Todas las islas</option></select></label>
+          <label class="filter-field">PLATAFORMA<select id="filter-platform" aria-label="Filtrar por plataforma"><option value="">Todas las plataformas</option></select></label>
+          <button class="filter-reset" id="reset-filters" type="button"><span aria-hidden="true">↺</span>Limpiar filtros</button>
+        </div>
+      </section>
+
       <section class="kpi-grid" aria-label="Indicadores del conjunto filtrado">
-        <article class="kpi kpi-primary"><div class="kpi-label">PASADAS <span class="kpi-glyph" aria-hidden="true">◉</span></div><div class="kpi-value" id="kpi-passes">—</div><div class="kpi-foot">escenas seleccionadas</div></article>
-        <article class="kpi"><div class="kpi-label">NUBOSIDAD MEDIA <span class="kpi-glyph cloud-glyph" aria-hidden="true">☁</span></div><div class="kpi-value" id="kpi-cloud">—<small>%</small></div><div class="kpi-foot">porcentaje de cobertura</div></article>
-        <article class="kpi"><div class="kpi-label">APTITUD MEDIA <span class="kpi-glyph" aria-hidden="true">⌁</span></div><div class="kpi-value" id="kpi-suitability">—<small>%</small></div><div class="kpi-foot">calidad simulada de observación</div></article>
-        <article class="kpi"><div class="kpi-label">ÍNDICE ILUSTRATIVO <span class="kpi-glyph" aria-hidden="true">✳</span></div><div class="kpi-value" id="kpi-index">—<small>/100</small></div><div class="kpi-foot">sin detección real de plástico</div></article>
+        <article class="kpi kpi-primary" id="kpi-card-passes"><div class="kpi-label">PASADAS <span class="kpi-glyph" aria-hidden="true">◉</span></div><div class="kpi-value" id="kpi-passes">—</div><div class="kpi-viz kpi-progress-track" role="progressbar" aria-label="Proporción de pasadas visibles respecto al conjunto completo" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="kpi-passes-progress"></span></div><div class="kpi-meta"><span class="kpi-status" id="kpi-passes-status" aria-live="polite">Sin datos</span><span class="kpi-foot" id="kpi-passes-foot">sin comparación</span></div></article>
+        <article class="kpi" id="kpi-card-cloud"><div class="kpi-label">NUBOSIDAD MEDIA <span class="kpi-glyph cloud-glyph" aria-hidden="true">☁</span></div><div class="kpi-value" id="kpi-cloud">—<small>%</small></div><svg class="kpi-viz kpi-sparkline" id="kpi-cloud-sparkline" viewBox="0 0 100 28" preserveAspectRatio="none" role="img" aria-label="Tendencia de nubosidad sin datos"><polyline id="kpi-cloud-sparkline-line" points=""></polyline><circle id="kpi-cloud-sparkline-point" cx="0" cy="0" r="2.5"></circle></svg><div class="kpi-meta"><span class="kpi-status" id="kpi-cloud-status" aria-live="polite">Sin datos</span><span class="kpi-foot" id="kpi-cloud-foot">sin comparación</span></div></article>
+        <article class="kpi" id="kpi-card-suitability"><div class="kpi-label">APTITUD MEDIA <span class="kpi-glyph" aria-hidden="true">⌁</span></div><div class="kpi-value" id="kpi-suitability">—<small>%</small></div><svg class="kpi-viz kpi-sparkline" id="kpi-suitability-sparkline" viewBox="0 0 100 28" preserveAspectRatio="none" role="img" aria-label="Tendencia de aptitud sin datos"><polyline id="kpi-suitability-sparkline-line" points=""></polyline><circle id="kpi-suitability-sparkline-point" cx="0" cy="0" r="2.5"></circle></svg><div class="kpi-meta"><span class="kpi-status" id="kpi-suitability-status" aria-live="polite">Sin datos</span><span class="kpi-foot" id="kpi-suitability-foot">sin comparación</span></div></article>
+        <article class="kpi" id="kpi-card-index"><div class="kpi-label">ÍNDICE ILUSTRATIVO <span class="kpi-glyph" aria-hidden="true">✳</span></div><div class="kpi-value" id="kpi-index">—<small>/100</small></div><svg class="kpi-viz kpi-sparkline" id="kpi-index-sparkline" viewBox="0 0 100 28" preserveAspectRatio="none" role="img" aria-label="Tendencia del índice ilustrativo sin datos"><polyline id="kpi-index-sparkline-line" points=""></polyline><circle id="kpi-index-sparkline-point" cx="0" cy="0" r="2.5"></circle></svg><div class="kpi-meta"><span class="kpi-status" id="kpi-index-status" aria-live="polite">Sin datos</span><span class="kpi-foot" id="kpi-index-foot">sin comparación</span></div></article>
       </section>
 
       <section class="visual-grid" aria-label="Visualizaciones">
