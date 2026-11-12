@@ -44,6 +44,9 @@ function setKpiStatus(cardId, statusId, status, tone) {
 function renderKpis(passes) {
   document.querySelector("#kpi-passes").textContent = passes.length;
   const passesCoverage = allPasses.length ? passes.length / allPasses.length : 0;
+  const passesProgress = document.querySelector("#kpi-passes-progress");
+  passesProgress.style.width = `${passesCoverage * 100}%`;
+  passesProgress.parentElement.setAttribute("aria-valuenow", Math.round(passesCoverage * 100));
   const passesStatus = passes.length === 0
     ? ["Sin datos", "empty"]
     : passesCoverage >= 0.75
@@ -55,13 +58,14 @@ function renderKpis(passes) {
   renderVariation(document.querySelector("#kpi-passes-foot"), passes.length, allPasses.length);
 
   const metrics = [
-    { selector: "#kpi-cloud", statusSelector: "#kpi-cloud-status", footSelector: "#kpi-cloud-foot", cardSelector: "#kpi-card-cloud", key: "nubosidad_pct", suffix: "%", getStatus: value => value <= 20 ? ["Óptimo", "good"] : value <= 50 ? ["Moderado", "watch"] : ["Alto", "high"] },
-    { selector: "#kpi-suitability", statusSelector: "#kpi-suitability-status", footSelector: "#kpi-suitability-foot", cardSelector: "#kpi-card-suitability", key: "aptitud_pct", suffix: "%", getStatus: value => value >= 80 ? ["Óptimo", "good"] : value >= 60 ? ["Moderado", "watch"] : ["Bajo", "high"] },
-    { selector: "#kpi-index", statusSelector: "#kpi-index-status", footSelector: "#kpi-index-foot", cardSelector: "#kpi-card-index", key: "indice_acumulacion", suffix: "/100", getStatus: value => value <= 35 ? ["Bajo", "good"] : value <= 65 ? ["Moderado", "watch"] : ["Alto", "high"] }
+    { selector: "#kpi-cloud", statusSelector: "#kpi-cloud-status", footSelector: "#kpi-cloud-foot", cardSelector: "#kpi-card-cloud", key: "nubosidad_pct", suffix: "%", sparklineSelector: "#kpi-cloud-sparkline", label: "nubosidad", getStatus: value => value <= 20 ? ["Óptimo", "good"] : value <= 50 ? ["Moderado", "watch"] : ["Alto", "high"] },
+    { selector: "#kpi-suitability", statusSelector: "#kpi-suitability-status", footSelector: "#kpi-suitability-foot", cardSelector: "#kpi-card-suitability", key: "aptitud_pct", suffix: "%", sparklineSelector: "#kpi-suitability-sparkline", label: "aptitud", getStatus: value => value >= 80 ? ["Óptimo", "good"] : value >= 60 ? ["Moderado", "watch"] : ["Bajo", "high"] },
+    { selector: "#kpi-index", statusSelector: "#kpi-index-status", footSelector: "#kpi-index-foot", cardSelector: "#kpi-card-index", key: "indice_acumulacion", suffix: "/100", sparklineSelector: "#kpi-index-sparkline", label: "índice ilustrativo", getStatus: value => value <= 35 ? ["Bajo", "good"] : value <= 65 ? ["Moderado", "watch"] : ["Alto", "high"] }
   ];
 
   for (const metric of metrics) {
     const value = average(passes, metric.key);
+    renderKpiSparkline(metric.sparklineSelector, passes, metric.key, metric.label);
     const element = document.querySelector(metric.selector);
     element.innerHTML = `${value === null ? "—" : Math.round(value)}<small>${metric.suffix}</small>`;
     if (value === null) {
@@ -76,6 +80,34 @@ function renderKpis(passes) {
     const baseline = average(allPasses, metric.key);
     renderVariation(document.querySelector(metric.footSelector), value, baseline);
   }
+}
+
+function renderKpiSparkline(selector, passes, key, label) {
+  const sparkline = document.querySelector(selector);
+  const line = sparkline.querySelector("polyline");
+  const point = sparkline.querySelector("circle");
+  const values = passes
+    .slice()
+    .sort((first, second) => first.fecha.localeCompare(second.fecha))
+    .map(pass => pass[key]);
+
+  sparkline.setAttribute("aria-label", `Tendencia de ${label} en ${values.length} ${values.length === 1 ? "pasada" : "pasadas"} filtradas`);
+  if (!values.length) {
+    line.setAttribute("points", "");
+    point.setAttribute("visibility", "hidden");
+    return;
+  }
+
+  const coordinates = values.map((value, index) => {
+    const x = values.length === 1 ? 50 : (index / (values.length - 1)) * 100;
+    const y = 24 - (value / 100) * 20;
+    return [x, y];
+  });
+  line.setAttribute("points", coordinates.map(([x, y]) => `${x},${y}`).join(" "));
+  const [lastX, lastY] = coordinates.at(-1);
+  point.setAttribute("cx", lastX);
+  point.setAttribute("cy", lastY);
+  point.setAttribute("visibility", "visible");
 }
 
 function renderVariation(element, value, baseline) {
