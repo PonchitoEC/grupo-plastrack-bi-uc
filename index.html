@@ -33,11 +33,17 @@
       </section>
 
       <section class="filter-panel" aria-label="Filtros de pasadas">
-        <label class="filter-field">DESDE<input id="filter-date-from" type="date" aria-label="Fecha inicial"></label>
-        <label class="filter-field">HASTA<input id="filter-date-to" type="date" aria-label="Fecha final"></label>
-        <label class="filter-field">ISLA<select id="filter-island" aria-label="Filtrar por isla"><option value="">Todas las islas</option></select></label>
-        <label class="filter-field">PLATAFORMA<select id="filter-platform" aria-label="Filtrar por plataforma"><option value="">Todas las plataformas</option></select></label>
-        <button class="filter-reset" id="reset-filters" type="button">Restablecer</button>
+        <div class="filter-heading">
+          <div><p class="filter-kicker">EXPLORACIÓN DINÁMICA</p><h2>Filtrar pasadas</h2></div>
+          <span class="filter-hint"><span class="filter-live-dot" aria-hidden="true"></span>Resultados en tiempo real</span>
+        </div>
+        <div class="filter-controls">
+          <label class="filter-field">DESDE<input id="filter-date-from" type="date" aria-label="Fecha inicial"></label>
+          <label class="filter-field">HASTA<input id="filter-date-to" type="date" aria-label="Fecha final"></label>
+          <label class="filter-field">ISLA<select id="filter-island" aria-label="Filtrar por isla"><option value="">Todas las islas</option></select></label>
+          <label class="filter-field">PLATAFORMA<select id="filter-platform" aria-label="Filtrar por plataforma"><option value="">Todas las plataformas</option></select></label>
+          <button class="filter-reset" id="reset-filters" type="button"><span aria-hidden="true">↺</span>Limpiar filtros</button>
+        </div>
       </section>
 
       <section class="kpi-grid" aria-label="Indicadores del conjunto filtrado">
